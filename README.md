@@ -2,33 +2,242 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Ma Sói Online Demo v1.0.0</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Ma Sói P2P v1.3.1</title>
   <style>
     * { box-sizing: border-box; }
     :root {
       --bg: #020617;
-      --card: rgba(15, 23, 42, 0.9);
-      --card-2: #020617;
+      --card: rgba(15, 23, 42, 0.92);
+      --panel: #020617;
       --line: #1e293b;
       --text: #f8fafc;
       --muted: #94a3b8;
       --soft: #cbd5e1;
       --purple: #7c3aed;
-      --purple-2: #a78bfa;
       --green: #059669;
       --red: #e11d48;
       --blue: #0284c7;
       --amber: #f59e0b;
     }
-    body {
-      margin: 0;
-      font-family: Arial, Helvetica, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-    }
-    button, input, select, textarea { font: inherit; }
+    body { margin: 0; font-family: Arial, Helvetica, sans-serif; background: var(--bg); color: var(--text); }
+    button, input, select { font: inherit; }
     button { border: 0; }
+    .page { min-height: 100vh; padding: 24px; background: radial-gradient(circle at top left, rgba(147,51,234,.25), transparent 34%), radial-gradient(circle at top right, rgba(14,165,233,.16), transparent 30%), var(--bg); }
+    .container { max-width: 1280px; margin: 0 auto; }
+    .hero { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; margin-bottom: 20px; }
+    .badge { display: inline-flex; gap: 8px; align-items: center; color: #e9d5ff; background: rgba(168,85,247,.14); border: 1px solid rgba(216,180,254,.22); border-radius: 999px; padding: 8px 12px; font-size: 14px; }
+    h1 { font-size: clamp(30px, 5vw, 54px); line-height: 1; margin: 12px 0; }
+    h2 { margin: 0 0 14px; }
+    h3 { margin: 18px 0 10px; }
+    p { color: var(--soft); }
+    .hero p { max-width: 760px; margin: 0; }
+    .version { color: var(--muted); margin-top: 8px; font-size: 13px; }
+    .layout { display: grid; grid-template-columns: 1fr 370px; gap: 20px; }
+    .main-column, .side-column { display: flex; flex-direction: column; gap: 20px; }
+    .card { background: var(--card); border: 1px solid var(--line); border-radius: 28px; padding: 22px; box-shadow: 0 20px 60px rgba(0,0,0,.24); }
+    .hero-actions, .tool-row, .chat-input { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .btn { min-height: 44px; border-radius: 18px; padding: 11px 16px; color: white; background: var(--purple); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; transition: transform .15s, background .15s, opacity .15s; user-select: none; white-space: nowrap; }
+    .btn:hover { transform: translateY(-1px); background: #8b5cf6; }
+    .btn.secondary { background: #334155; }
+    .btn.success { background: var(--green); }
+    .btn.danger { background: var(--red); }
+    .btn.blue { background: var(--blue); }
+    .btn.ghost { background: transparent; border: 1px solid #334155; }
+    .btn:disabled { opacity: .48; cursor: not-allowed; transform: none; }
+    input, select { width: 100%; background: var(--panel); border: 1px solid #334155; color: var(--text); border-radius: 16px; padding: 12px 14px; outline: none; }
+    input:focus, select:focus { border-color: #a78bfa; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+    .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+    .stat-box, .box, .role-mini, .player-card, .log-list div { background: var(--panel); border: 1px solid var(--line); border-radius: 22px; padding: 16px; }
+    .stat-box span { display: block; color: var(--muted); font-size: 14px; }
+    .stat-box strong { display: block; color: #d8b4fe; font-size: 30px; margin: 8px 0; word-break: break-word; }
+    small { display: block; color: var(--muted); }
+    .section-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 18px; }
+    .section-header p { margin: 4px 0 0; color: var(--muted); }
+    .form-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+    .connect-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .tool-row { margin: 16px 0; }
+    .tool-row input[type="range"] { width: 220px; padding: 0; }
+    .role-grid, .player-grid, .action-grid { display: grid; gap: 10px; }
+    .role-grid { grid-template-columns: repeat(4, 1fr); }
+    .player-grid { grid-template-columns: repeat(3, 1fr); }
+    .action-grid { grid-template-columns: repeat(3, 1fr); margin: 16px 0; }
+    .role-mini span { font-size: 25px; }
+    .role-mini b { display: block; margin-top: 6px; }
+    .checkbox-line { display: flex; align-items: center; gap: 10px; background: var(--panel); border: 1px solid var(--line); border-radius: 20px; padding: 14px; margin: 14px 0; }
+    .checkbox-line input { width: auto; }
+    .winner-box { background: rgba(16,185,129,.14); border: 1px solid rgba(110,231,183,.3); border-radius: 24px; padding: 22px; }
+    .winner-box h2 { color: #a7f3d0; font-size: 28px; }
+    .seer-result { color: #d8b4fe; }
+    .vote-list { display: flex; flex-direction: column; gap: 10px; }
+    .vote-row { display: grid; grid-template-columns: 1fr 2fr; gap: 10px; align-items: center; background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 12px; }
+    .player-card.dead { background: rgba(127,29,29,.26); border-color: rgba(248,113,113,.35); opacity: .74; }
+    .player-top { display: flex; justify-content: space-between; gap: 12px; }
+    .player-top b { font-size: 18px; }
+    .player-top span { font-size: 28px; }
+    .role-box { margin-top: 12px; background: #0f172a; border-radius: 16px; padding: 12px; }
+    .role-box p { color: var(--muted); font-size: 13px; margin-bottom: 0; }
+    .chat-box { height: 230px; overflow: auto; background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 12px; margin-bottom: 10px; }
+    .chat-box p { margin: 0 0 8px; color: var(--soft); }
+    .chat-box b { color: #d8b4fe; }
+    .log-list { display: flex; flex-direction: column; gap: 10px; }
+    .log-list div { color: var(--soft); font-size: 14px; }
+    .compact-note { color: var(--muted); font-size: 13px; margin-top: 10px; }
+    .hidden { display: none !important; }
+    @media (max-width: 1050px) { .layout { grid-template-columns: 1fr; } .grid-3, .role-grid, .player-grid { grid-template-columns: repeat(2, 1fr); } .form-grid, .action-grid, .grid-2, .connect-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 640px) and (orientation: portrait) { .page { padding: 12px; } .hero, .section-header { flex-direction: column; } .hero h1 { font-size: 30px; } .hero p { font-size: 14px; } .grid-3, .role-grid, .player-grid { grid-template-columns: 1fr; } .vote-row { grid-template-columns: 1fr; } .tool-row input[type="range"] { width: 100%; } .btn { width: 100%; } .card { padding: 16px; border-radius: 22px; } }
+    @media (max-width: 920px) and (orientation: landscape) { .page { padding: 10px; } .container { max-width: none; } .hero { align-items: center; margin-bottom: 10px; } .hero h1 { font-size: 24px; margin: 8px 0 0; } .hero p, .version { display: none; } .badge { padding: 6px 10px; font-size: 12px; } .hero-actions { flex-wrap: nowrap; } .hero-actions .btn, .btn { width: auto; min-height: 38px; padding: 8px 12px; border-radius: 14px; } .layout { grid-template-columns: minmax(0, 1.35fr) minmax(260px, .8fr); gap: 10px; align-items: start; } .main-column, .side-column { gap: 10px; } .card { padding: 12px; border-radius: 18px; } h2 { font-size: 18px; margin-bottom: 10px; } h3 { font-size: 15px; margin: 10px 0 8px; } p, small, .compact-note { font-size: 12px; } .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; } .grid-2, .connect-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; } .form-grid { grid-template-columns: 1.2fr 1fr 1fr 1fr; gap: 8px; } .action-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 8px 0; } .role-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; } .player-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; max-height: 46vh; overflow: auto; padding-right: 2px; } .stat-box, .box, .role-mini, .player-card, .log-list div { padding: 10px; border-radius: 16px; } .stat-box strong { font-size: 20px; margin: 4px 0; } input, select { padding: 9px 10px; border-radius: 12px; } .tool-row { margin: 8px 0; } .tool-row input[type="range"] { width: 140px; } .chat-box { height: 120px; padding: 8px; border-radius: 14px; } .log-list { max-height: 125px; overflow: auto; } .side-column .card:nth-child(2) { display: none; } .checkbox-line { padding: 10px; margin: 8px 0; border-radius: 14px; } .role-box { padding: 8px; } .role-box p { display: none; } }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <div class="container">
+      <header class="hero">
+        <div>
+          <div class="badge">🌙 Ma Sói P2P Online</div>
+          <h1>Ma Sói chơi chung bằng mã phòng</h1>
+          <p>Một máy làm chủ phòng, máy khác nhập mã để kết nối P2P. Bot tự chơi độc lập theo timer.</p>
+          <div class="version">Phiên bản v1.3.1</div>
+        </div>
+        <div class="hero-actions">
+          <button class="btn secondary" id="resetBtn">🔄 Phòng mới</button>
+          <button class="btn" id="copyBtn">📋 Copy mã</button>
+        </div>
+      </header>
+      <div class="layout">
+        <div class="main-column">
+          <section class="card">
+            <div class="grid-3">
+              <div class="stat-box"><span>📡 Mã phòng</span><strong id="roomCodeText">----</strong><small id="networkHint">Bấm “Tạo phòng” để lấy mã thật.</small></div>
+              <div class="stat-box"><span>👥 Người chơi</span><strong id="playerCountText">0/8</strong><small id="botCountText">Bot: 0</small></div>
+              <div class="stat-box"><span>☀️ Trạng thái</span><strong id="phaseText">Sảnh</strong><small id="networkStatusText">Offline</small><small id="statusText">Game tiếp tục cho đến khi Làng hoặc Sói thắng.</small></div>
+            </div>
+          </section>
+          <section class="card">
+            <div class="section-header"><div><h2>🌐 Phòng online</h2><p>Tạo phòng hoặc nhập mã để vào phòng người khác.</p></div></div>
+            <div class="connect-grid">
+              <div class="box"><h3>Chủ phòng</h3><input id="hostNameInput" value="Chủ phòng" placeholder="Tên chủ phòng" /><div class="tool-row"><button class="btn success" id="createOnlineRoomBtn">🏠 Tạo phòng</button></div></div>
+              <div class="box"><h3>Vào phòng</h3><input id="guestNameInput" placeholder="Tên của bạn" /><input id="joinRoomInput" placeholder="Nhập mã phòng" style="margin-top: 10px;" /><div class="tool-row"><button class="btn blue" id="joinOnlineRoomBtn">🚪 Vào phòng</button></div></div>
+            </div>
+            <div class="compact-note" id="peerStatusText">P2P dùng PeerJS để hai máy tìm nhau, không dùng Firebase/Supabase.</div>
+          </section>
+          <section class="card" id="lobbyCard">
+            <div class="section-header"><div><h2>➕ Sảnh chờ</h2><p>Chủ phòng thêm người, thêm bot và bắt đầu ván.</p></div><button class="btn success" id="startBtn">▶️ Bắt đầu</button></div>
+            <div class="form-grid"><input id="localAddNameInput" placeholder="Tên người chơi thêm thủ công" /><button class="btn secondary" id="addLocalHumanBtn">Thêm người</button><button class="btn ghost" id="addBotBtn">🤖 Thêm bot</button><button class="btn ghost" id="fillBotsBtn">Đủ bot</button></div>
+            <div class="tool-row"><label for="minPlayersInput">Số người:</label><input id="minPlayersInput" type="range" min="5" max="12" value="8" /><b id="minPlayersText">8</b></div>
+            <h3>✨ Vai trò khi đủ <span id="roleTargetText">8</span> người</h3><div class="role-grid" id="roleGrid"></div>
+          </section>
+          <section class="card hidden" id="gameCard">
+            <div id="winnerBox" class="winner-box hidden"></div>
+            <div id="nightPanel" class="hidden"><h2>🌙 Pha đêm</h2><div class="compact-note">Bot tự hành động sau vài giây. Chủ phòng chỉ chốt lượt.</div><div class="action-grid"><div class="box"><b>💀 Sói cắn</b><select id="wolfTargetSelect"></select></div><div class="box"><b>🛡️ Bảo vệ</b><select id="doctorTargetSelect"></select></div><div class="box"><b>👁️ Tiên tri</b><select id="seerTargetSelect"></select></div></div><label class="checkbox-line"><input type="checkbox" id="witchSaveInput" />💗 Phù thủy cứu</label><div class="tool-row"><button class="btn" id="resolveNightBtn">☀️ Kết thúc đêm</button></div></div>
+            <div id="dayPanel" class="hidden"><h2>☀️ Pha ngày</h2><div class="grid-2"><div class="box"><b>Thông báo</b><p id="nightVictimText">Mọi người thức dậy và bắt đầu thảo luận.</p><p id="seerResultText" class="seer-result"></p></div><div class="box"><b>Bỏ phiếu</b><p>Người thật tự chọn. Bot tự vote sau vài giây.</p></div></div><div class="vote-list" id="voteList"></div><div class="tool-row"><button class="btn danger" id="resolveVoteBtn">💀 Chốt phiếu</button></div></div>
+          </section>
+          <section class="card"><h2>👥 Người chơi</h2><div class="player-grid" id="playerGrid"></div></section>
+        </div>
+        <aside class="side-column">
+          <section class="card"><h2>💬 Chat phòng</h2><div class="chat-box" id="chatBox"></div><div class="chat-input"><input id="chatInput" placeholder="Nhập tin nhắn..." /><button class="btn" id="sendChatBtn">Gửi</button></div></section>
+          <section class="card"><h2>👑 Luật thắng</h2><p><b>Làng:</b> loại hết Ma Sói.</p><p><b>Sói:</b> số sói còn sống bằng hoặc nhiều hơn dân làng.</p><p><b>Bot:</b> tự hành động, không nghe điều khiển người chơi.</p></section>
+          <section class="card"><h2>📜 Nhật ký</h2><div class="log-list" id="logList"></div></section>
+        </aside>
+      </div>
+    </div>
+  </main>
+  <script src="https://unpkg.com/peerjs@1.5.5/dist/peerjs.min.js"></script>
+  <script>
+    "use strict";
+    const VERSION = "v1.3.1";
+    const PEER_PREFIX = "ma-soi-p2p-";
+    const BOT_THINK_MS = 2200;
+    const ROLE_DATA = {
+      wolf: { name: "Ma sói", team: "Sói", icon: "🐺", desc: "Mỗi đêm cùng bầy sói chọn một người để cắn." },
+      villager: { name: "Dân làng", team: "Làng", icon: "🧑‍🌾", desc: "Không có kỹ năng ban đêm, thắng bằng suy luận và bỏ phiếu đúng." },
+      seer: { name: "Tiên tri", team: "Làng", icon: "🔮", desc: "Mỗi đêm soi một người để biết họ thuộc phe Sói hay không." },
+      doctor: { name: "Bảo vệ", team: "Làng", icon: "🛡️", desc: "Mỗi đêm bảo vệ một người khỏi bị sói cắn." },
+      witch: { name: "Phù thủy", team: "Làng", icon: "🧪", desc: "Có một bình cứu. Bản đơn giản cho phép cứu nạn nhân đêm đó." },
+      hunter: { name: "Thợ săn", team: "Làng", icon: "🏹", desc: "Vai mạnh trong làng. Bản này hiển thị vai trước, chưa xử lý bắn khi chết." },
+      cupid: { name: "Thần tình yêu", team: "Làng", icon: "💘", desc: "Vai đặc biệt. Bản này hiển thị vai trước, chưa xử lý ghép đôi." },
+      guard: { name: "Hiệp sĩ", team: "Làng", icon: "⚔️", desc: "Có tiếng nói mạnh khi tranh luận. Bản này tính phiếu như người thường." },
+      alphaWolf: { name: "Sói đầu đàn", team: "Sói", icon: "👑🐺", desc: "Sói đặc biệt, cùng phe Sói đi cắn mỗi đêm." }
+    };
+    const BOT_NAMES = ["An Bot", "Bình Bot", "Chi Bot", "Dũng Bot", "Em Bot", "Giang Bot", "Hạ Bot", "Khoa Bot", "Linh Bot", "Minh Bot", "Nhi Bot", "Phong Bot", "Quân Bot", "Trang Bot", "Vy Bot", "Long Bot", "Tú Bot", "Huy Bot"];
+    const ROLE_SET_BY_SIZE = {
+      5: ["wolf", "seer", "doctor", "villager", "villager"], 6: ["wolf", "seer", "doctor", "hunter", "villager", "villager"], 7: ["wolf", "wolf", "seer", "doctor", "hunter", "villager", "villager"], 8: ["alphaWolf", "wolf", "seer", "doctor", "witch", "hunter", "villager", "villager"], 9: ["alphaWolf", "wolf", "seer", "doctor", "witch", "hunter", "cupid", "villager", "villager"], 10: ["alphaWolf", "wolf", "wolf", "seer", "doctor", "witch", "hunter", "cupid", "villager", "villager"], 11: ["alphaWolf", "wolf", "wolf", "seer", "doctor", "witch", "hunter", "cupid", "guard", "villager", "villager"], 12: ["alphaWolf", "wolf", "wolf", "seer", "doctor", "witch", "hunter", "cupid", "guard", "villager", "villager", "villager"]
+    };
+    const state = { roomCode: makeCode(), localName: "Chủ phòng", localPlayerId: "", minPlayers: 8, players: [], phase: "lobby", day: 0, selectedWolfTarget: "", selectedDoctorTarget: "", selectedSeerTarget: "", selectedWitchSave: false, seerResult: "", nightVictim: "", votes: {}, log: ["Game đã mở. Tạo phòng online hoặc vào phòng bằng mã."], chat: [{ from: "Hệ thống", text: "Chào mừng đến với Ma Sói P2P!" }], botTimer: null, network: { mode: "offline", status: "Offline", peerReady: false, hostPeerId: "", connections: {} } };
+    let peer = null;
+    let hostConnection = null;
+    const els = {};
+    document.addEventListener("DOMContentLoaded", init);
+    function init() { cacheElements(); const ok = runSelfTests(); if (!ok) return; bindEvents(); setupOfflineHost(); render(); }
+    function cacheElements() { ["resetBtn","copyBtn","roomCodeText","networkHint","playerCountText","networkStatusText","statusText","peerStatusText","botCountText","hostNameInput","guestNameInput","joinRoomInput","createOnlineRoomBtn","joinOnlineRoomBtn","phaseText","lobbyCard","gameCard","winnerBox","nightPanel","dayPanel","localAddNameInput","addLocalHumanBtn","addBotBtn","fillBotsBtn","startBtn","minPlayersInput","minPlayersText","roleTargetText","roleGrid","wolfTargetSelect","doctorTargetSelect","seerTargetSelect","witchSaveInput","resolveNightBtn","nightVictimText","seerResultText","voteList","resolveVoteBtn","playerGrid","chatBox","chatInput","sendChatBtn","logList"].forEach((id) => { els[id] = document.getElementById(id); }); }
+    function mustEl(name) { return els[name] || null; }
+    function setText(name, value) { const el = mustEl(name); if (el) el.textContent = value; }
+    function setHtml(name, value) { const el = mustEl(name); if (el) el.innerHTML = value; }
+    function bindEvents() { on("resetBtn","click",resetGame); on("copyBtn","click",copyInvite); on("createOnlineRoomBtn","click",createOnlineRoom); on("joinOnlineRoomBtn","click",joinOnlineRoom); on("addLocalHumanBtn","click",addLocalHuman); on("addBotBtn","click",() => addBot(1)); on("fillBotsBtn","click",fillBots); on("startBtn","click",startGame); on("resolveNightBtn","click",resolveNight); on("resolveVoteBtn","click",resolveVote); on("sendChatBtn","click",sendChat); on("chatInput","keydown",(event) => { if (event.key === "Enter") sendChat(); }); on("minPlayersInput","input",() => { if (!isHost()) return; state.minPlayers = Number(els.minPlayersInput.value); syncAfterHostChange(); }); on("witchSaveInput","change",() => { if (!isHost()) return; state.selectedWitchSave = els.witchSaveInput.checked; syncAfterHostChange(); }); on("wolfTargetSelect","change",() => { if (!isHost()) return; state.selectedWolfTarget = els.wolfTargetSelect.value; syncAfterHostChange(); }); on("doctorTargetSelect","change",() => { if (!isHost()) return; state.selectedDoctorTarget = els.doctorTargetSelect.value; syncAfterHostChange(); }); on("seerTargetSelect","change",() => { if (!isHost()) return; state.selectedSeerTarget = els.seerTargetSelect.value; syncAfterHostChange(); }); }
+    function on(id, eventName, handler) { const el = els[id]; if (el) el.addEventListener(eventName, handler); }
+    function setupOfflineHost() { const host = createPlayer("Chủ phòng", false, true, "local"); state.localPlayerId = host.id; state.players = [host]; }
+    function makeCode() { return Math.random().toString(36).slice(2, 6).toUpperCase() + "-" + Math.random().toString(36).slice(2, 6).toUpperCase(); }
+    function makePeerIdFromCode(code) { return PEER_PREFIX + String(code || "").toLowerCase().replace(/[^a-z0-9-]/g, ""); }
+    function makeId() { return window.crypto && typeof window.crypto.randomUUID === "function" ? window.crypto.randomUUID() : "id-" + Date.now() + "-" + Math.random().toString(36).slice(2); }
+    function createPlayer(name, isBot, host, connectionId) { return { id: makeId(), name, isBot: Boolean(isBot), host: Boolean(host), connectionId: connectionId || "", alive: true, role: null }; }
+    function shuffle(arr) { return arr.slice().sort(() => Math.random() - 0.5); }
+    function chooseRandom(list) { return Array.isArray(list) && list.length ? list[Math.floor(Math.random() * list.length)] : null; }
+    function getRoleSet(count) { const safeCount = Math.max(5, Math.min(12, Number(count) || 5)); return ROLE_SET_BY_SIZE[safeCount] || ROLE_SET_BY_SIZE[12]; }
+    function isWolfRole(role) { return role === "wolf" || role === "alphaWolf"; }
+    function alivePlayers() { return state.players.filter((player) => player.alive); }
+    function wolvesAlive() { return state.players.filter((player) => player.alive && isWolfRole(player.role)); }
+    function villagersAlive() { return state.players.filter((player) => player.alive && !isWolfRole(player.role)); }
+    function isHost() { return state.network.mode === "host" || state.network.mode === "offline"; }
+    function getWinner() { if (state.phase === "lobby") return ""; if (wolvesAlive().length === 0) return "Làng thắng! Tất cả ma sói đã bị loại."; if (wolvesAlive().length >= villagersAlive().length) return "Sói thắng! Số sói đã bằng hoặc vượt số dân làng."; return ""; }
+    function syncAfterHostChange() { scheduleBotBrain(); broadcastState(); render(); }
+    function pushLog(text, shouldBroadcast) { state.log.unshift(text); state.log = state.log.slice(0, 16); if (shouldBroadcast !== false) broadcastState(); render(); }
+    function resetGame() { clearBotTimer(); closeNetwork(); state.roomCode = makeCode(); state.localName = "Chủ phòng"; state.minPlayers = 8; state.phase = "lobby"; state.day = 0; state.selectedWolfTarget = ""; state.selectedDoctorTarget = ""; state.selectedSeerTarget = ""; state.selectedWitchSave = false; state.seerResult = ""; state.nightVictim = ""; state.votes = {}; state.log = ["Phòng mới đã được tạo. Tạo phòng online hoặc chơi offline."]; state.chat = [{ from: "Hệ thống", text: "Phòng mới đã sẵn sàng." }]; setupOfflineHost(); render(); }
+    function closeNetwork() { Object.values(state.network.connections).forEach((conn) => { try { conn.close(); } catch (error) {} }); state.network.connections = {}; if (hostConnection) { try { hostConnection.close(); } catch (error) {} hostConnection = null; } if (peer) { try { peer.destroy(); } catch (error) {} peer = null; } state.network.mode = "offline"; state.network.status = "Offline"; state.network.peerReady = false; state.network.hostPeerId = ""; }
+    async function copyInvite() { const invite = "Mời bạn vào chơi Ma Sói P2P! Mã phòng: " + state.roomCode + ". Mở link game, nhập tên và nhập mã này để vào phòng."; try { if (navigator.clipboard && navigator.clipboard.writeText) { await navigator.clipboard.writeText(invite); setText("copyBtn", "✅ Đã copy"); setTimeout(() => render(), 1200); } else pushLog("Trình duyệt không hỗ trợ copy tự động. Mã phòng là " + state.roomCode + ".", false); } catch (error) { pushLog("Không copy tự động được. Mã phòng là " + state.roomCode + ".", false); } }
+    function requirePeerLibrary() { if (typeof Peer === "undefined") { pushLog("Không tải được PeerJS. Hãy kiểm tra internet/adblock rồi tải lại trang.", false); return false; } return true; }
+    function createOnlineRoom() { if (!requirePeerLibrary()) return; clearBotTimer(); closeNetwork(); const hostName = cleanName(els.hostNameInput.value || "Chủ phòng"); state.roomCode = makeCode(); const hostPlayer = createPlayer(hostName, false, true, "host"); state.localPlayerId = hostPlayer.id; state.localName = hostName; state.players = [hostPlayer]; state.phase = "lobby"; state.day = 0; state.votes = {}; state.network.mode = "host"; state.network.status = "Đang tạo phòng"; state.network.hostPeerId = makePeerIdFromCode(state.roomCode); render(); peer = new Peer(state.network.hostPeerId, { debug: 1 }); peer.on("open", () => { state.network.peerReady = true; state.network.status = "Đang mở phòng"; pushLog("Phòng online đã mở. Mã phòng: " + state.roomCode + ".", false); render(); }); peer.on("connection", setupHostConnection); peer.on("error", (error) => { state.network.status = "Lỗi"; pushLog("Lỗi tạo phòng online: " + readablePeerError(error), false); render(); }); }
+    function joinOnlineRoom() { if (!requirePeerLibrary()) return; const guestName = cleanName(els.guestNameInput.value); const code = els.joinRoomInput.value.trim().toUpperCase(); if (!guestName) { pushLog("Hãy nhập tên của bạn trước khi vào phòng.", false); return; } if (!code) { pushLog("Hãy nhập mã phòng trước khi vào.", false); return; } clearBotTimer(); closeNetwork(); state.roomCode = code; state.localName = guestName; state.network.mode = "guest"; state.network.status = "Đang vào phòng"; state.network.hostPeerId = makePeerIdFromCode(code); state.players = []; render(); peer = new Peer(undefined, { debug: 1 }); peer.on("open", () => { state.network.peerReady = true; hostConnection = peer.connect(state.network.hostPeerId, { reliable: true }); setupGuestConnection(hostConnection, guestName); }); peer.on("error", (error) => { state.network.status = "Lỗi"; pushLog("Lỗi vào phòng: " + readablePeerError(error), false); render(); }); }
+    function setupHostConnection(conn) { state.network.connections[conn.peer] = conn; conn.on("open", () => { sendTo(conn, { type: "hello-host" }); broadcastState(); render(); }); conn.on("data", (data) => handleHostData(conn, safeMessage(data))); conn.on("close", () => { delete state.network.connections[conn.peer]; const player = state.players.find((item) => item.connectionId === conn.peer); if (player) pushLog(player.name + " đã mất kết nối.", false); broadcastState(); render(); }); conn.on("error", () => { delete state.network.connections[conn.peer]; pushLog("Một kết nối bị lỗi.", false); render(); }); }
+    function setupGuestConnection(conn, guestName) { conn.on("open", () => { state.network.status = "Đã kết nối"; sendTo(conn, { type: "join", name: guestName }); pushLog("Đã gửi yêu cầu vào phòng.", false); render(); }); conn.on("data", (data) => handleGuestData(safeMessage(data))); conn.on("close", () => { state.network.status = "Mất kết nối"; pushLog("Đã mất kết nối với chủ phòng.", false); render(); }); conn.on("error", () => { state.network.status = "Lỗi kết nối"; pushLog("Kết nối tới chủ phòng bị lỗi.", false); render(); }); }
+    function handleHostData(conn, message) { if (!message || !message.type) return; if (message.type === "join") { if (state.players.length >= 12) { sendTo(conn, { type: "reject", reason: "Phòng đã đủ 12 người." }); return; } let player = state.players.find((item) => item.connectionId === conn.peer); if (!player) { player = createPlayer(cleanName(message.name || "Người chơi"), false, false, conn.peer); state.players.push(player); pushLog(player.name + " đã vào phòng online.", false); } sendTo(conn, { type: "joined", state: publicState(), playerId: player.id }); broadcastState(); render(); return; } if (message.type === "chat") { addChat(cleanName(message.from || "Người chơi"), String(message.text || ""), false); broadcastState(); render(); return; } if (message.type === "vote" && state.phase === "day") { state.votes[message.voterId] = message.targetId; broadcastState(); render(); } }
+    function handleGuestData(message) { if (!message || !message.type) return; if (message.type === "state" || message.type === "joined") { if (message.playerId) state.localPlayerId = message.playerId; applyPublicState(message.state); state.network.status = "Đã kết nối"; render(); return; } if (message.type === "reject") { state.network.status = "Bị từ chối"; pushLog(message.reason || "Không thể vào phòng.", false); render(); } }
+    function publicState() { return { roomCode: state.roomCode, minPlayers: state.minPlayers, players: state.players, phase: state.phase, day: state.day, selectedWolfTarget: state.selectedWolfTarget, selectedDoctorTarget: state.selectedDoctorTarget, selectedSeerTarget: state.selectedSeerTarget, selectedWitchSave: state.selectedWitchSave, seerResult: state.seerResult, nightVictim: state.nightVictim, votes: state.votes, log: state.log, chat: state.chat }; }
+    function applyPublicState(next) { if (!next) return; state.roomCode = next.roomCode || state.roomCode; state.minPlayers = Number(next.minPlayers) || state.minPlayers; state.players = Array.isArray(next.players) ? next.players : state.players; state.phase = next.phase || state.phase; state.day = Number(next.day) || 0; state.selectedWolfTarget = next.selectedWolfTarget || ""; state.selectedDoctorTarget = next.selectedDoctorTarget || ""; state.selectedSeerTarget = next.selectedSeerTarget || ""; state.selectedWitchSave = Boolean(next.selectedWitchSave); state.seerResult = next.seerResult || ""; state.nightVictim = next.nightVictim || ""; state.votes = next.votes || {}; state.log = Array.isArray(next.log) ? next.log : state.log; state.chat = Array.isArray(next.chat) ? next.chat : state.chat; }
+    function broadcastState() { if (state.network.mode !== "host") return; const msg = { type: "state", state: publicState() }; Object.values(state.network.connections).forEach((conn) => sendTo(conn, msg)); }
+    function sendTo(conn, message) { try { if (conn && conn.open) conn.send(message); } catch (error) { pushLog("Gửi dữ liệu thất bại.", false); } }
+    function safeMessage(data) { return data && typeof data === "object" ? data : null; }
+    function readablePeerError(error) { const type = error && error.type ? error.type : "unknown"; if (type === "unavailable-id") return "Mã phòng này đang được dùng. Hãy bấm tạo phòng mới."; if (type === "peer-unavailable") return "Không tìm thấy phòng. Kiểm tra mã hoặc chủ phòng đã tắt."; if (type === "network") return "Lỗi mạng hoặc server tín hiệu không phản hồi."; return type; }
+    function cleanName(value) { return String(value || "").trim().slice(0, 24) || "Người chơi"; }
+    function addLocalHuman() { if (!isHost()) return; if (state.players.length >= 12) { pushLog("Phòng đã đủ 12 người."); return; } const name = cleanName(els.localAddNameInput.value); state.players.push(createPlayer(name, false, false, "manual")); els.localAddNameInput.value = ""; pushLog(name + " đã được thêm thủ công."); scheduleBotBrain(); }
+    function addBot(count) { if (!isHost()) return; if (state.players.length >= 12) { pushLog("Phòng đã đủ 12 người, không thể thêm bot."); return; } const amount = Math.min(Number(count) || 1, 12 - state.players.length); const used = new Set(state.players.map((player) => player.name)); for (let i = 0; i < amount; i++) { const botName = BOT_NAMES.find((name) => !used.has(name)) || "Bot " + (state.players.length + 1); used.add(botName); state.players.push(createPlayer(botName, true, false, "bot")); } pushLog("Đã thêm " + amount + " bot. Bot sẽ tự chơi độc lập."); scheduleBotBrain(); }
+    function fillBots() { if (!isHost()) return; const need = Math.max(0, state.minPlayers - state.players.length); if (need > 0) addBot(need); else pushLog("Số người đã đủ, không cần thêm bot."); }
+    function startGame() { if (!isHost()) return; let roster = state.players.slice(); const need = Math.max(0, state.minPlayers - roster.length); for (let i = 0; i < need; i++) { const botName = BOT_NAMES.find((name) => !roster.some((player) => player.name === name)) || "Bot " + (roster.length + 1); roster.push(createPlayer(botName, true, false, "bot")); } roster = roster.slice(0, 12); const roles = shuffle(getRoleSet(roster.length)); state.players = shuffle(roster).map((player, index) => ({ ...player, role: roles[index], alive: true })); state.phase = "night"; state.day = 1; state.votes = {}; state.nightVictim = ""; state.seerResult = ""; state.selectedWolfTarget = ""; state.selectedDoctorTarget = ""; state.selectedSeerTarget = ""; state.selectedWitchSave = false; pushLog("Game bắt đầu với " + state.players.length + " người. Bot sẽ tự hành động trong đêm."); scheduleBotBrain(); }
+    function clearBotTimer() { if (state.botTimer) { clearTimeout(state.botTimer); state.botTimer = null; } }
+    function scheduleBotBrain() { clearBotTimer(); if (!isHost() || state.phase === "lobby" || getWinner()) return; state.botTimer = setTimeout(() => { state.botTimer = null; runBotBrain(); }, BOT_THINK_MS); }
+    function runBotBrain() { if (!isHost() || state.phase === "lobby" || getWinner()) return; let changed = false; if (state.phase === "night") changed = botNightActions(); if (state.phase === "day") changed = botDayVotes(); if (changed) { state.log.unshift("Bot đã tự hành động độc lập."); state.log = state.log.slice(0, 16); broadcastState(); render(); } }
+    function botNightActions() { const alive = alivePlayers(); const botWolves = alive.filter((p) => p.isBot && isWolfRole(p.role)); const humanWolves = alive.filter((p) => !p.isBot && isWolfRole(p.role)); const botDoctors = alive.filter((p) => p.isBot && p.role === "doctor"); const botSeers = alive.filter((p) => p.isBot && p.role === "seer"); const botWitches = alive.filter((p) => p.isBot && p.role === "witch"); let changed = false; if (!state.selectedWolfTarget && botWolves.length > 0 && humanWolves.length === 0) { const victim = chooseRandom(alive.filter((p) => !isWolfRole(p.role))); if (victim) { state.selectedWolfTarget = victim.id; changed = true; } } if (!state.selectedDoctorTarget && botDoctors.length > 0) { const protect = chooseRandom(alive.filter((p) => !isWolfRole(p.role))) || chooseRandom(alive); if (protect) { state.selectedDoctorTarget = protect.id; changed = true; } } if (!state.selectedSeerTarget && botSeers.length > 0) { const target = chooseRandom(alive.filter((p) => p.role !== "seer")); if (target) { state.selectedSeerTarget = target.id; changed = true; } } if (!state.selectedWitchSave && botWitches.length > 0 && state.selectedWolfTarget && Math.random() < 0.45) { state.selectedWitchSave = true; changed = true; } return changed; }
+    function botDayVotes() { const alive = alivePlayers(); const bots = alive.filter((p) => p.isBot); let changed = false; bots.forEach((bot) => { if (state.votes[bot.id]) return; const candidates = alive.filter((p) => p.id !== bot.id); let pool = candidates; if (!isWolfRole(bot.role)) { const wolves = candidates.filter((p) => isWolfRole(p.role)); if (wolves.length && Math.random() < 0.55) pool = wolves; } else { const nonWolves = candidates.filter((p) => !isWolfRole(p.role)); if (nonWolves.length) pool = nonWolves; } const pick = chooseRandom(pool); if (pick) { state.votes[bot.id] = pick.id; changed = true; } }); return changed; }
+    function resolveNight() { if (!isHost()) return; botNightActions(); const wolfTarget = state.players.find((player) => player.id === state.selectedWolfTarget); const doctorTarget = state.players.find((player) => player.id === state.selectedDoctorTarget); const seerTarget = state.players.find((player) => player.id === state.selectedSeerTarget); let victim = null; if (wolfTarget) { const savedByDoctor = doctorTarget && doctorTarget.id === wolfTarget.id; const savedByWitch = state.selectedWitchSave; if (!savedByDoctor && !savedByWitch) { victim = wolfTarget; state.players = state.players.map((player) => player.id === wolfTarget.id ? { ...player, alive: false } : player); } } state.seerResult = seerTarget ? seerTarget.name + " " + (isWolfRole(seerTarget.role) ? "thuộc phe Sói" : "không thuộc phe Sói") + "." : ""; state.nightVictim = victim ? victim.name + " đã bị sói cắn." : "Không ai chết trong đêm nay."; state.phase = "day"; state.votes = {}; pushLog(victim ? "Sáng ngày " + state.day + ": " + victim.name + " đã chết." : "Sáng ngày " + state.day + ": không ai chết."); scheduleBotBrain(); }
+    function resolveVote() { if (!isHost()) return; botDayVotes(); const count = {}; Object.values(state.votes).forEach((targetId) => { if (targetId) count[targetId] = (count[targetId] || 0) + 1; }); const sorted = Object.entries(count).sort((a, b) => b[1] - a[1]); if (!sorted.length) { state.phase = "night"; state.day += 1; pushLog("Không đủ phiếu, không ai bị treo cổ. Đêm tiếp theo bắt đầu."); scheduleBotBrain(); return; } const targetId = sorted[0][0]; const amount = sorted[0][1]; const eliminated = state.players.find((player) => player.id === targetId); state.players = state.players.map((player) => player.id === targetId ? { ...player, alive: false } : player); state.phase = "night"; state.day += 1; state.selectedWolfTarget = ""; state.selectedDoctorTarget = ""; state.selectedSeerTarget = ""; state.selectedWitchSave = false; state.nightVictim = ""; state.votes = {}; pushLog((eliminated ? eliminated.name : "Một người") + " bị treo cổ với " + amount + " phiếu. Đêm tiếp theo bắt đầu."); scheduleBotBrain(); }
+    function sendChat() { const text = els.chatInput.value.trim(); if (!text) return; const from = state.localName || "Người chơi"; if (state.network.mode === "guest" && hostConnection && hostConnection.open) sendTo(hostConnection, { type: "chat", from, text }); else addChat(from, text, true); els.chatInput.value = ""; render(); }
+    function addChat(from, text, shouldBroadcast) { state.chat.push({ from: cleanName(from), text: String(text).slice(0, 200) }); state.chat = state.chat.slice(-10); if (shouldBroadcast !== false) broadcastState(); }
+    function castVote(voterId, targetId) { if (state.network.mode === "guest") sendTo(hostConnection, { type: "vote", voterId, targetId }); else if (isHost()) { state.votes[voterId] = targetId; syncAfterHostChange(); } }
+    function render() { const winner = getWinner(); const bots = state.players.filter((player) => player.isBot).length; setText("roomCodeText", state.roomCode); setText("playerCountText", state.players.length + "/" + state.minPlayers); setText("networkStatusText", state.network.status); setText("peerStatusText", state.network.mode === "host" ? "Bạn là chủ phòng. Gửi mã cho bạn bè." : state.network.mode === "guest" ? "Bạn đang nhận dữ liệu từ chủ phòng." : "P2P dùng PeerJS để hai máy tìm nhau, không dùng Firebase/Supabase."); setText("networkHint", state.network.mode === "host" ? "Mã này cho người khác nhập để vào phòng." : state.network.mode === "guest" ? "Bạn đang ở phòng " + state.roomCode + "." : "Bấm “Tạo phòng” để lấy mã thật."); setText("botCountText", "Bot: " + bots); setText("phaseText", state.phase === "lobby" ? "Sảnh" : state.phase === "night" ? "Đêm " + state.day : "Ngày " + state.day); setText("statusText", winner || "Game tiếp tục cho đến khi Làng hoặc Sói thắng."); if (els.minPlayersInput) els.minPlayersInput.value = String(state.minPlayers); setText("minPlayersText", String(state.minPlayers)); setText("roleTargetText", String(state.minPlayers)); if (els.witchSaveInput) els.witchSaveInput.checked = state.selectedWitchSave; setControlsEnabled(); toggle(els.lobbyCard, state.phase !== "lobby"); toggle(els.gameCard, state.phase === "lobby"); toggle(els.winnerBox, !winner); toggle(els.nightPanel, state.phase !== "night" || Boolean(winner)); toggle(els.dayPanel, state.phase !== "day" || Boolean(winner)); if (winner && els.winnerBox) els.winnerBox.innerHTML = "<h2>" + escapeHtml(winner) + "</h2><p>Bấm “Phòng mới” để chơi ván khác.</p>"; renderRoles(); renderNightSelects(); renderVotes(); renderPlayers(); renderChat(); renderLog(); setText("nightVictimText", state.nightVictim || "Mọi người thức dậy và bắt đầu thảo luận."); setText("seerResultText", state.seerResult ? "Kết quả riêng của Tiên tri: " + state.seerResult : ""); }
+    function setControlsEnabled() { [els.addLocalHumanBtn, els.addBotBtn, els.fillBotsBtn, els.startBtn, els.minPlayersInput, els.wolfTargetSelect, els.doctorTargetSelect, els.seerTargetSelect, els.witchSaveInput, els.resolveNightBtn, els.resolveVoteBtn].forEach((el) => { if (el) el.disabled = !isHost(); }); if (els.createOnlineRoomBtn) els.createOnlineRoomBtn.disabled = state.network.mode === "host" && state.network.peerReady; if (els.joinOnlineRoomBtn) els.joinOnlineRoomBtn.disabled = state.network.mode === "guest" && state.network.status === "Đã kết nối"; }
+    function renderRoles() { const counts = {}; getRoleSet(state.minPlayers).forEach((role) => { counts[role] = (counts[role] || 0) + 1; }); setHtml("roleGrid", Object.keys(counts).map((role) => { const data = ROLE_DATA[role]; return "<div class=\"role-mini\"><span>" + data.icon + "</span><b>" + escapeHtml(data.name) + " x" + counts[role] + "</b><small>Phe " + escapeHtml(data.team) + "</small></div>"; }).join("")); }
+    function renderNightSelects() { const alive = alivePlayers(); fillSelect(els.wolfTargetSelect, alive.filter((player) => !isWolfRole(player.role)), state.selectedWolfTarget, "Chưa chọn"); fillSelect(els.doctorTargetSelect, alive, state.selectedDoctorTarget, "Chưa chọn"); fillSelect(els.seerTargetSelect, alive, state.selectedSeerTarget, "Chưa chọn"); }
+    function fillSelect(selectEl, players, selectedValue, emptyLabel) { if (!selectEl) return; selectEl.innerHTML = "<option value=\"\">" + escapeHtml(emptyLabel) + "</option>"; players.forEach((player) => { const option = document.createElement("option"); option.value = player.id; option.textContent = player.name; selectEl.appendChild(option); }); selectEl.value = selectedValue; }
+    function renderVotes() { const alive = alivePlayers(); if (!els.voteList) return; els.voteList.innerHTML = ""; alive.forEach((voter) => { const row = document.createElement("div"); row.className = "vote-row"; const label = document.createElement("b"); label.textContent = voter.name + (voter.isBot ? " BOT" : ""); const select = document.createElement("select"); select.innerHTML = "<option value=\"\">Chọn người bị nghi</option>"; alive.filter((player) => player.id !== voter.id).forEach((candidate) => { const option = document.createElement("option"); option.value = candidate.id; option.textContent = candidate.name; select.appendChild(option); }); select.value = state.votes[voter.id] || ""; select.disabled = voter.isBot || (!isHost() && voter.id !== state.localPlayerId); select.addEventListener("change", () => castVote(voter.id, select.value)); row.appendChild(label); row.appendChild(select); els.voteList.appendChild(row); }); }
+    function renderPlayers() { setHtml("playerGrid", state.players.map((player) => { const role = player.role ? ROLE_DATA[player.role] : null; const status = (player.host ? "Chủ phòng " : "") + (player.isBot ? "BOT tự chơi " : "") + (player.id === state.localPlayerId ? "Bạn " : "") + (player.alive ? "Còn sống" : "Đã chết"); const roleBox = role ? "<div class=\"role-box\"><b>" + escapeHtml(role.name) + "</b><small>Phe " + escapeHtml(role.team) + "</small><p>" + escapeHtml(role.desc) + "</p></div>" : ""; return "<div class=\"player-card " + (player.alive ? "" : "dead") + "\"><div class=\"player-top\"><div><b>" + escapeHtml(player.name) + "</b><small>" + escapeHtml(status) + "</small></div><span>" + (role ? role.icon : player.isBot ? "🤖" : "🙂") + "</span></div>" + roleBox + "</div>"; }).join("")); }
+    function renderChat() { if (!els.chatBox) return; els.chatBox.innerHTML = state.chat.map((m) => "<p><b>" + escapeHtml(m.from) + ":</b> " + escapeHtml(m.text) + "</p>").join(""); els.chatBox.scrollTop = els.chatBox.scrollHeight; }
+    function renderLog() { setHtml("logList", state.log.map((entry) => "<div>" + escapeHtml(entry) + "</div>").join("")); }
+    function toggle(el, shouldHide) { if (el) el.classList.toggle("hidden", shouldHide); }
+    function escapeHtml(value) { return String(value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\"/g, "&quot;").replace(/'/g, "&#039;"); }
+    function runSelfTests() { const required = ["resetBtn","copyBtn","roomCodeText","networkHint","playerCountText","networkStatusText","statusText","peerStatusText","botCountText","hostNameInput","guestNameInput","joinRoomInput","createOnlineRoomBtn","joinOnlineRoomBtn","phaseText","lobbyCard","gameCard","winnerBox","nightPanel","dayPanel","localAddNameInput","addLocalHumanBtn","addBotBtn","fillBotsBtn","startBtn","minPlayersInput","minPlayersText","roleTargetText","roleGrid","wolfTargetSelect","doctorTargetSelect","seerTargetSelect","witchSaveInput","resolveNightBtn","nightVictimText","seerResultText","voteList","resolveVoteBtn","playerGrid","chatBox","chatInput","sendChatBtn","logList"]; const missing = required.filter((id) => !els[id]); const bot = createPlayer("Bot Test", true, false, "bot"); const tests = [ { name: "Không thiếu DOM ID", pass: missing.length === 0 }, { name: "Phiên bản đúng v1.3.1", pass: VERSION === "v1.3.1" }, { name: "Bộ 5 người có đúng 5 vai", pass: getRoleSet(5).length === 5 }, { name: "Bộ 8 người có Sói đầu đàn", pass: getRoleSet(8).includes("alphaWolf") }, { name: "Số quá lớn được giới hạn về 12 vai", pass: getRoleSet(99).length === 12 }, { name: "Chọn ngẫu nhiên danh sách rỗng trả về null", pass: chooseRandom([]) === null }, { name: "Bot được đánh dấu là người máy", pass: bot.isBot === true }, { name: "Bot có connectionId riêng là bot", pass: bot.connectionId === "bot" }, { name: "Hàm kiểm tra PeerJS tồn tại", pass: typeof requirePeerLibrary === "function" } ]; tests.forEach((test) => console.assert(test.pass, "Self-test failed: " + test.name)); if (missing.length) { document.body.innerHTML = "<pre style='color:#fca5a5;background:#020617;padding:20px;white-space:pre-wrap'>Lỗi DOM: thiếu ID sau:\n" + missing.join("\n") + "</pre>"; return false; } if (tests.every((test) => test.pass)) console.log("Ma Sói P2P " + VERSION + ": self-test passed"); return tests.every((test) => test.pass); }
+  </script>
+</body>
+</html>
     .page {
       min-height: 100vh;
       padding: 24px;
