@@ -1,55 +1,1163 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Ma Sói P2P v1.3.1</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>Among Us Mini PeerJS</title>
+  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
   <style>
     * { box-sizing: border-box; }
-    :root {
-      --bg: #020617;
-      --card: rgba(15, 23, 42, 0.92);
-      --panel: #020617;
-      --line: #1e293b;
-      --text: #f8fafc;
-      --muted: #94a3b8;
-      --soft: #cbd5e1;
-      --purple: #7c3aed;
-      --green: #059669;
-      --red: #e11d48;
-      --blue: #0284c7;
-      --amber: #f59e0b;
+    html, body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      overscroll-behavior: none;
+      touch-action: none;
+      -webkit-user-select: none;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
     }
-    body { margin: 0; font-family: Arial, Helvetica, sans-serif; background: var(--bg); color: var(--text); }
-    button, input, select { font: inherit; }
-    button { border: 0; }
-    .page { min-height: 100vh; padding: 24px; background: radial-gradient(circle at top left, rgba(147,51,234,.25), transparent 34%), radial-gradient(circle at top right, rgba(14,165,233,.16), transparent 30%), var(--bg); }
-    .container { max-width: 1280px; margin: 0 auto; }
-    .hero { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; margin-bottom: 20px; }
-    .badge { display: inline-flex; gap: 8px; align-items: center; color: #e9d5ff; background: rgba(168,85,247,.14); border: 1px solid rgba(216,180,254,.22); border-radius: 999px; padding: 8px 12px; font-size: 14px; }
-    h1 { font-size: clamp(30px, 5vw, 54px); line-height: 1; margin: 12px 0; }
-    h2 { margin: 0 0 14px; }
-    h3 { margin: 18px 0 10px; }
-    p { color: var(--soft); }
-    .hero p { max-width: 760px; margin: 0; }
-    .version { color: var(--muted); margin-top: 8px; font-size: 13px; }
-    .layout { display: grid; grid-template-columns: 1fr 370px; gap: 20px; }
-    .main-column, .side-column { display: flex; flex-direction: column; gap: 20px; }
-    .card { background: var(--card); border: 1px solid var(--line); border-radius: 28px; padding: 22px; box-shadow: 0 20px 60px rgba(0,0,0,.24); }
-    .hero-actions, .tool-row, .chat-input { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
-    .btn { min-height: 44px; border-radius: 18px; padding: 11px 16px; color: white; background: var(--purple); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; transition: transform .15s, background .15s, opacity .15s; user-select: none; white-space: nowrap; }
-    .btn:hover { transform: translateY(-1px); background: #8b5cf6; }
-    .btn.secondary { background: #334155; }
-    .btn.success { background: var(--green); }
-    .btn.danger { background: var(--red); }
-    .btn.blue { background: var(--blue); }
-    .btn.ghost { background: transparent; border: 1px solid #334155; }
-    .btn:disabled { opacity: .48; cursor: not-allowed; transform: none; }
-    input, select { width: 100%; background: var(--panel); border: 1px solid #334155; color: var(--text); border-radius: 16px; padding: 12px 14px; outline: none; }
-    input:focus, select:focus { border-color: #a78bfa; }
-    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
-    .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
-    .stat-box, .box, .role-mini, .player-card, .log-list div { background: var(--panel); border: 1px solid var(--line); border-radius: 22px; padding: 16px; }
+    body {
+      position: fixed;
+      inset: 0;
+      font-family: Arial, sans-serif;
+      background: radial-gradient(circle at top, #18223a, #070914 65%);
+      color: white;
+    }
+    button, input, select {
+      font: inherit;
+    }
+    button {
+      touch-action: manipulation;
+      border: 0;
+      border-radius: 12px;
+      padding: 10px 14px;
+      color: white;
+      background: #3348ff;
+      cursor: pointer;
+      font-weight: 700;
+      box-shadow: 0 6px 0 rgba(0,0,0,.25);
+    }
+    button:hover { filter: brightness(1.12); }
+    button:active { transform: translateY(2px); box-shadow: 0 3px 0 rgba(0,0,0,.25); }
+    button.danger { background: #e8273f; }
+    button.warn { background: #f59e0b; }
+    button.good { background: #16a34a; }
+    button.ghost { background: rgba(255,255,255,.12); }
+    button:disabled { opacity: .45; cursor: not-allowed; }
+    input, select {
+      user-select: text;
+      -webkit-user-select: text;
+      touch-action: manipulation;
+      width: 100%;
+      padding: 11px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.08);
+      color: white;
+      outline: none;
+    }
+    option { color: black; }
+    .screen {
+      position: fixed;
+      inset: 0;
+      height: 100dvh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: max(12px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+      background: rgba(4,7,18,.78);
+      z-index: 10;
+      overflow: hidden;
+    }
+    .hidden { display: none !important; }
+    .panel {
+      width: min(960px, 100%);
+      max-height: calc(100dvh - 24px);
+      overflow: auto;
+      overscroll-behavior: contain;
+      touch-action: pan-y;
+      border: 1px solid rgba(255,255,255,.14);
+      border-radius: 24px;
+      background: linear-gradient(180deg, rgba(24,31,55,.96), rgba(10,13,27,.96));
+      box-shadow: 0 25px 70px rgba(0,0,0,.55);
+      padding: 22px;
+    }
+    .title {
+      margin: 0 0 8px;
+      font-size: clamp(28px, 5vw, 54px);
+      line-height: 1;
+      letter-spacing: -1px;
+      text-shadow: 0 4px 0 rgba(0,0,0,.35);
+    }
+    .subtitle { margin: 0 0 18px; opacity: .8; }
+    .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+    .card {
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.07);
+      padding: 15px;
+    }
+    .row { display: flex; gap: 10px; align-items: center; }
+    .row > * { flex: 1; }
+    .small { font-size: 13px; opacity: .76; }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 9px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.11);
+      border: 1px solid rgba(255,255,255,.12);
+      font-size: 12px;
+      font-weight: 700;
+    }
+    #gameWrap {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100dvh;
+      display: grid;
+      grid-template-columns: 1fr 330px;
+      background: #080b17;
+      overflow: hidden;
+    }
+    #canvasBox { position: relative; overflow: hidden; min-width: 0; min-height: 0; touch-action: none; }
+    canvas { display: block; width: 100%; height: 100%; background: #0a1022; touch-action: none; }
+    #hud {
+      border-left: 1px solid rgba(255,255,255,.12);
+      background: linear-gradient(180deg, #11182d, #090d19);
+      padding: 14px;
+      overflow: auto;
+      overscroll-behavior: contain;
+      touch-action: pan-y;
+    }
+    #roleBox {
+      padding: 12px;
+      border-radius: 16px;
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.13);
+      margin-bottom: 12px;
+    }
+    #roleName { font-size: 24px; font-weight: 900; }
+    #taskList { padding-left: 18px; line-height: 1.6; }
+    #playersList, #logList, #voteList { display: grid; gap: 8px; }
+    .playerItem, .logItem, .voteItem {
+      padding: 9px;
+      border-radius: 12px;
+      background: rgba(255,255,255,.07);
+      border: 1px solid rgba(255,255,255,.09);
+    }
+    .playerItem.dead { opacity: .45; text-decoration: line-through; }
+    .sectionTitle { margin: 18px 0 8px; font-size: 14px; text-transform: uppercase; opacity: .75; letter-spacing: .06em; }
+    #actionBar {
+      position: absolute;
+      left: calc(16px + env(safe-area-inset-left));
+      bottom: calc(16px + env(safe-area-inset-bottom));
+      right: 350px;
+      display: flex;
+      gap: 10px;
+      pointer-events: none;
+      z-index: 4;
+    }
+    #actionBar button { pointer-events: auto; min-width: 110px; }
+    #mobilePad {
+      position: absolute;
+      right: calc(350px + 18px);
+      bottom: calc(18px + env(safe-area-inset-bottom));
+      display: none;
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.14);
+      pointer-events: auto;
+      touch-action: none;
+      z-index: 4;
+    }
+    #mobileStick {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 58px;
+      height: 58px;
+      margin-left: -29px;
+      margin-top: -29px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.26);
+      border: 2px solid rgba(255,255,255,.3);
+      box-shadow: 0 8px 18px rgba(0,0,0,.25);
+      pointer-events: none;
+    }
+    #mobilePadHint {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      color: rgba(255,255,255,.5);
+      font-size: 12px;
+      font-weight: 900;
+      pointer-events: none;
+    }
+    #toast {
+      position: absolute;
+      left: 50%;
+      top: 16px;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,.62);
+      border: 1px solid rgba(255,255,255,.18);
+      border-radius: 999px;
+      padding: 10px 14px;
+      z-index: 5;
+      opacity: 0;
+      transition: .2s;
+      pointer-events: none;
+      max-width: 70%;
+      text-align: center;
+    }
+    #toast.show { opacity: 1; }
+    .meetingHeader {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+    .voteItem { display: flex; gap: 8px; align-items: center; justify-content: space-between; }
+    .voteItem span { flex: 1; }
+    #copyId { user-select: all; color: #a5b4fc; font-weight: 800; }
+    @media (max-width: 900px) {
+      #gameWrap { grid-template-columns: 1fr; grid-template-rows: minmax(0, 1fr) 190px; }
+      #hud {
+        border-left: 0;
+        border-top: 1px solid rgba(255,255,255,.12);
+        padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+      }
+      #roleBox { margin-bottom: 8px; padding: 9px; }
+      #roleName { font-size: 18px; }
+      .sectionTitle { margin: 10px 0 6px; font-size: 11px; }
+      #taskList { margin: 6px 0; line-height: 1.35; font-size: 12px; }
+      #playersList, #logList { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5px; }
+      .playerItem, .logItem { padding: 6px; font-size: 12px; }
+      #hud .card { padding: 8px; }
+      #hud .row { gap: 6px; }
+      #hud button { padding: 8px 10px; border-radius: 10px; }
+      #actionBar {
+        left: calc(10px + env(safe-area-inset-left));
+        right: calc(10px + env(safe-area-inset-right));
+        bottom: calc(202px + env(safe-area-inset-bottom));
+        justify-content: flex-start;
+      }
+      #actionBar button { min-width: 86px; padding: 11px 10px; }
+      #mobilePad {
+        display: block;
+        right: calc(12px + env(safe-area-inset-right));
+        bottom: calc(258px + env(safe-area-inset-bottom));
+      }
+      .grid { grid-template-columns: 1fr; }
+      .panel { padding: 14px; border-radius: 18px; }
+      .title { font-size: clamp(25px, 8vw, 38px); }
+      .meetingHeader { align-items: flex-start; }
+      .voteItem { padding: 8px; }
+    }
+    @media (max-width: 520px) {
+      #gameWrap { grid-template-rows: minmax(0, 1fr) 166px; }
+      #hud { font-size: 12px; }
+      #roleHint, #logList, #hostId { display: none; }
+      #mobilePad { width: 132px; height: 132px; bottom: calc(224px + env(safe-area-inset-bottom)); }
+      #mobileStick { width: 52px; height: 52px; margin-left: -26px; margin-top: -26px; }
+      #actionBar { bottom: calc(174px + env(safe-area-inset-bottom)); gap: 7px; }
+      #actionBar button { min-width: 76px; padding: 10px 8px; font-size: 13px; }
+      #playersList { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      #taskList li:nth-child(n+4) { display: none; }
+    }
+    @media (orientation: landscape) and (max-height: 520px) {
+      #gameWrap { grid-template-columns: 1fr 260px; grid-template-rows: 1fr; }
+      #hud { border-top: 0; border-left: 1px solid rgba(255,255,255,.12); padding: 8px; }
+      #roleName { font-size: 17px; }
+      #taskList { font-size: 12px; line-height: 1.28; }
+      #logList { display: none; }
+      #actionBar { right: 280px; bottom: calc(10px + env(safe-area-inset-bottom)); left: calc(10px + env(safe-area-inset-left)); }
+      #mobilePad { right: calc(280px + 12px); bottom: calc(12px + env(safe-area-inset-bottom)); display: block; width: 126px; height: 126px; }
+    }
+  </style>
+</head>
+<body>
+  <div id="gameWrap">
+    <div id="canvasBox">
+      <canvas id="game"></canvas>
+      <div id="toast"></div>
+      <div id="actionBar">
+        <button id="btnUse" class="good">Dùng</button>
+        <button id="btnKill" class="danger">Kill</button>
+        <button id="btnReport" class="warn">Report</button>
+      </div>
+      <div id="mobilePad" aria-label="Cần điều khiển di chuyển">
+        <div id="mobilePadHint">MOVE</div>
+        <div id="mobileStick"></div>
+      </div>
+    </div>
+    <aside id="hud">
+      <div id="roleBox">
+        <div class="small">Vai trò của bạn</div>
+        <div id="roleName">Chưa bắt đầu</div>
+        <div id="roleHint" class="small">Tạo hoặc vào phòng để chơi.</div>
+      </div>
+      <div class="row">
+        <button id="btnStart" class="good">Start Game</button>
+        <button id="btnEmergency" class="danger">Emergency</button>
+      </div>
+      <div class="sectionTitle">Phòng</div>
+      <div class="card small">
+        Peer ID: <span id="myId">...</span><br />
+        Host: <span id="hostId">...</span><br />
+        Trạng thái: <span id="netStatus">offline</span>
+      </div>
+      <div class="sectionTitle">Task</div>
+      <ul id="taskList"></ul>
+      <div class="sectionTitle">Người chơi</div>
+      <div id="playersList"></div>
+      <div class="sectionTitle">Nhật ký</div>
+      <div id="logList"></div>
+    </aside>
+  </div>
+
+  <div id="menu" class="screen">
+    <div class="panel">
+      <h1 class="title">Among Us Mini<br />PeerJS</h1>
+      <p class="subtitle">Game nhiều người chơi P2P: host tạo phòng, người khác nhập Peer ID để vào. Không cần server riêng.</p>
+      <div class="grid">
+        <div class="card">
+          <h2>Tạo nhân vật</h2>
+          <label class="small">Tên</label>
+          <input id="nameInput" maxlength="14" placeholder="VD: Hai" />
+          <br /><br />
+          <label class="small">Màu</label>
+          <select id="colorInput">
+            <option value="#ef4444">Đỏ</option>
+            <option value="#3b82f6">Xanh dương</option>
+            <option value="#22c55e">Xanh lá</option>
+            <option value="#facc15">Vàng</option>
+            <option value="#a855f7">Tím</option>
+            <option value="#f97316">Cam</option>
+            <option value="#ec4899">Hồng</option>
+            <option value="#14b8a6">Ngọc</option>
+          </select>
+          <br /><br />
+          <button id="btnCreatePeer">Kết nối PeerJS</button>
+          <p class="small">Bước 1: bấm kết nối để lấy Peer ID của bạn.</p>
+        </div>
+        <div class="card">
+          <h2>Host / Join</h2>
+          <button id="btnHost" class="good" disabled>Tạo phòng</button>
+          <p class="small">Gửi Peer ID của bạn cho bạn bè. ID phòng: <span id="copyId">chưa có</span></p>
+          <div class="row">
+            <input id="joinIdInput" placeholder="Nhập Peer ID của host" />
+            <button id="btnJoin" disabled>Vào</button>
+          </div>
+          <p class="small">Host là máy điều khiển trạng thái game: chia role, vote, thắng/thua.</p>
+        </div>
+      </div>
+      <div class="card" style="margin-top:14px">
+        <b>Luật nhanh:</b>
+        <span class="pill">WASD / phím mũi tên để đi</span>
+        <span class="pill">Crewmate làm task</span>
+        <span class="pill">Impostor kill</span>
+        <span class="pill">Report để vote</span>
+        <span class="pill">Crew thắng khi xong task hoặc đuổi Impostor</span>
+      </div>
+    </div>
+  </div>
+
+  <div id="meeting" class="screen hidden">
+    <div class="panel">
+      <div class="meetingHeader">
+        <div>
+          <h1 class="title" style="font-size:38px">Cuộc họp khẩn</h1>
+          <p id="meetingReason" class="subtitle">Ai là Impostor?</p>
+        </div>
+        <div class="pill">Còn <span id="meetingTimer">30</span>s</div>
+      </div>
+      <div id="voteList"></div>
+      <br />
+      <button id="btnSkip" class="ghost">Skip vote</button>
+    </div>
+  </div>
+
+  <div id="endScreen" class="screen hidden">
+    <div class="panel" style="text-align:center">
+      <h1 id="endTitle" class="title">Game Over</h1>
+      <p id="endText" class="subtitle"></p>
+      <button onclick="location.reload()">Chơi lại</button>
+    </div>
+  </div>
+
+<script>
+(() => {
+  const canvas = document.getElementById('game');
+  const ctx = canvas.getContext('2d');
+  const $ = id => document.getElementById(id);
+
+  const WORLD = { w: 1600, h: 1000 };
+  const SPEED = 230;
+  const KILL_RANGE = 75;
+  const REPORT_RANGE = 90;
+  const TASK_RANGE = 70;
+  const KILL_COOLDOWN = 12000;
+  const MEETING_SECONDS = 30;
+
+  let peer = null;
+  let myId = null;
+  let host = false;
+  let hostPeerId = null;
+  let conns = new Map();
+  let hostConn = null;
+  let lastPing = 0;
+  let keys = {};
+  let mobile = { x: 0, y: 0, active: false, pointerId: null };
+  let lastFrame = performance.now();
+  let toastTimer = null;
+  let meetingInterval = null;
+
+  const state = {
+    phase: 'menu',
+    players: {},
+    corpses: [],
+    tasks: makeTasks(),
+    votes: {},
+    meeting: null,
+    winner: null,
+    log: []
+  };
+
+  const walls = [
+    {x:0,y:0,w:1600,h:24},{x:0,y:976,w:1600,h:24},{x:0,y:0,w:24,h:1000},{x:1576,y:0,w:24,h:1000},
+    {x:250,y:120,w:280,h:160, name:'Cafeteria'},
+    {x:720,y:80,w:360,h:180, name:'MedBay'},
+    {x:1160,y:150,w:280,h:190, name:'Admin'},
+    {x:165,y:470,w:310,h:230, name:'Engine'},
+    {x:650,y:440,w:330,h:240, name:'Electrical'},
+    {x:1120,y:520,w:310,h:230, name:'Security'},
+    {x:470,y:312,w:80,h:320},
+    {x:1010,y:300,w:80,h:360},
+  ];
+
+  function makeTasks() {
+    return [
+      { id:'wires', name:'Nối dây điện', x:815, y:725, kind:'hold', progress:0, total:2.2 },
+      { id:'scan', name:'Quét y tế', x:900, y:310, kind:'hold', progress:0, total:2.8 },
+      { id:'card', name:'Quẹt thẻ Admin', x:1270, y:390, kind:'tap', progress:0, total:1 },
+      { id:'fuel', name:'Đổ nhiên liệu', x:322, y:760, kind:'hold', progress:0, total:2.5 },
+      { id:'download', name:'Tải dữ liệu', x:1380, y:800, kind:'tap', progress:0, total:1 }
+    ];
+  }
+
+  function me() { return state.players[myId]; }
+  function randSpawn() { return { x: 780 + Math.random()*80, y: 880 + Math.random()*50 }; }
+  function safeName() { return ($('nameInput').value || 'Player').trim().slice(0,14) || 'Player'; }
+  function myColor() { return $('colorInput').value; }
+
+  function resize() {
+    const box = $('canvasBox').getBoundingClientRect();
+    const ratio = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = Math.max(300, Math.floor(box.width * ratio));
+    canvas.height = Math.max(250, Math.floor(box.height * ratio));
+    ctx.setTransform(ratio,0,0,ratio,0,0);
+  }
+  addEventListener('resize', resize, { passive: true });
+  addEventListener('orientationchange', () => setTimeout(resize, 250), { passive: true });
+  resize();
+
+  function toast(msg) {
+    $('toast').textContent = msg;
+    $('toast').classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => $('toast').classList.remove('show'), 2300);
+  }
+
+  function addLog(msg) {
+    state.log.unshift({ t: Date.now(), msg });
+    state.log = state.log.slice(0, 8);
+  }
+
+  function createLocalPlayer() {
+    const p = randSpawn();
+    state.players[myId] = {
+      id: myId,
+      name: safeName(),
+      color: myColor(),
+      x: p.x,
+      y: p.y,
+      role: 'unknown',
+      alive: true,
+      connected: true,
+      tasksDone: {},
+      killReadyAt: 0,
+      emergencyUsed: false
+    };
+  }
+
+  function connectPeer() {
+    if (peer) return;
+    peer = new Peer();
+    $('netStatus').textContent = 'đang kết nối...';
+
+    peer.on('open', id => {
+      myId = id;
+      $('myId').textContent = id;
+      $('copyId').textContent = id;
+      $('netStatus').textContent = 'online';
+      $('btnHost').disabled = false;
+      $('btnJoin').disabled = false;
+      createLocalPlayer();
+      updateHUD();
+      toast('Đã kết nối PeerJS. Bạn có thể tạo phòng hoặc vào phòng.');
+    });
+
+    peer.on('connection', conn => {
+      if (!host) {
+        conn.close();
+        return;
+      }
+      setupHostConnection(conn);
+    });
+
+    peer.on('error', err => {
+      console.error(err);
+      toast('Lỗi PeerJS: ' + err.type);
+      $('netStatus').textContent = 'lỗi';
+    });
+  }
+
+  function setupHostConnection(conn) {
+    conns.set(conn.peer, conn);
+    conn.on('open', () => {
+      conn.send({ type:'welcome', hostId: myId, state, yourId: conn.peer });
+      broadcast({ type:'state', state });
+    });
+    conn.on('data', msg => handleHostMessage(conn.peer, msg));
+    conn.on('close', () => {
+      conns.delete(conn.peer);
+      if (state.players[conn.peer]) state.players[conn.peer].connected = false;
+      addLog((state.players[conn.peer]?.name || conn.peer) + ' đã rời phòng');
+      broadcastState();
+    });
+  }
+
+  function joinHost() {
+    const id = $('joinIdInput').value.trim();
+    if (!peer || !id || id === myId) return toast('Peer ID không hợp lệ.');
+    host = false;
+    hostPeerId = id;
+    $('hostId').textContent = id;
+    hostConn = peer.connect(id, { reliable: true });
+    hostConn.on('open', () => {
+      hostConn.send({ type:'join', player: state.players[myId] });
+      $('menu').classList.add('hidden');
+      toast('Đã vào phòng. Chờ host start game.');
+    });
+    hostConn.on('data', handleClientMessage);
+    hostConn.on('close', () => toast('Mất kết nối với host.'));
+    hostConn.on('error', () => toast('Không vào được phòng.'));
+  }
+
+  function becomeHost() {
+    host = true;
+    hostPeerId = myId;
+    $('hostId').textContent = myId;
+    $('menu').classList.add('hidden');
+    addLog('Bạn đã tạo phòng');
+    toast('Bạn là host. Gửi Peer ID cho bạn bè rồi bấm Start Game.');
+    updateHUD();
+  }
+
+  function sendToHost(msg) {
+    if (host) handleHostMessage(myId, msg);
+    else if (hostConn && hostConn.open) hostConn.send(msg);
+  }
+
+  function broadcast(msg) {
+    for (const conn of conns.values()) if (conn.open) conn.send(msg);
+  }
+
+  function broadcastState() {
+    broadcast({ type:'state', state });
+    updateHUD();
+  }
+
+  function handleHostMessage(from, msg) {
+    if (!msg || !msg.type) return;
+    if (msg.type === 'join') {
+      const p = msg.player;
+      if (!p) return;
+      const spawn = randSpawn();
+      state.players[from] = { ...p, id: from, x: spawn.x, y: spawn.y, role:'unknown', alive:true, connected:true, tasksDone:{}, killReadyAt:0, emergencyUsed:false };
+      addLog(state.players[from].name + ' đã vào phòng');
+      broadcastState();
+    }
+    if (msg.type === 'input') {
+      const p = state.players[from];
+      if (!p || state.phase !== 'playing' || !p.alive) return;
+      movePlayer(p, msg.dx || 0, msg.dy || 0, msg.dt || 0);
+      p.x = clamp(p.x, 34, WORLD.w-34);
+      p.y = clamp(p.y, 34, WORLD.h-34);
+    }
+    if (msg.type === 'task') doTask(from, msg.taskId, msg.dt || 0, msg.mode);
+    if (msg.type === 'kill') doKill(from, msg.targetId);
+    if (msg.type === 'report') doReport(from, msg.corpseId || null, msg.emergency || false);
+    if (msg.type === 'vote') doVote(from, msg.targetId);
+  }
+
+  function handleClientMessage(msg) {
+    if (!msg || !msg.type) return;
+    if (msg.type === 'welcome') {
+      hostPeerId = msg.hostId;
+      Object.assign(state, msg.state);
+      $('hostId').textContent = hostPeerId;
+      updateHUD();
+    }
+    if (msg.type === 'state') {
+      Object.assign(state, msg.state);
+      updateMeetingUI();
+      updateHUD();
+      if (state.winner) showEnd();
+    }
+    if (msg.type === 'toast') toast(msg.msg);
+  }
+
+  function startGame() {
+    if (!host) return toast('Chỉ host mới start được.');
+    const ids = Object.keys(state.players).filter(id => state.players[id].connected !== false);
+    if (ids.length < 3) return toast('Cần ít nhất 3 người để chơi hay hơn. Có thể sửa code nếu muốn 2 người.');
+    state.phase = 'playing';
+    state.corpses = [];
+    state.tasks = makeTasks();
+    state.votes = {};
+    state.meeting = null;
+    state.winner = null;
+    const impostorCount = ids.length >= 7 ? 2 : 1;
+    const shuffled = [...ids].sort(() => Math.random() - .5);
+    const impostors = new Set(shuffled.slice(0, impostorCount));
+    ids.forEach((id, i) => {
+      const spawn = { x: 690 + (i%5)*58, y: 860 + Math.floor(i/5)*55 };
+      state.players[id] = {
+        ...state.players[id],
+        x: spawn.x,
+        y: spawn.y,
+        role: impostors.has(id) ? 'impostor' : 'crewmate',
+        alive: true,
+        connected: true,
+        tasksDone: {},
+        killReadyAt: Date.now() + 5000,
+        emergencyUsed: false
+      };
+    });
+    addLog('Game bắt đầu. Có ' + impostorCount + ' impostor.');
+    broadcastState();
+    updateHUD();
+  }
+
+  function doTask(playerId, taskId, dt, mode) {
+    const p = state.players[playerId];
+    const t = state.tasks.find(x => x.id === taskId);
+    if (!p || !t || p.role !== 'crewmate' || !p.alive || state.phase !== 'playing') return;
+    if (dist(p, t) > TASK_RANGE) return;
+    if (p.tasksDone[taskId]) return;
+    if (t.kind === 'tap' || mode === 'tap') {
+      p.tasksDone[taskId] = true;
+      addLog(p.name + ' hoàn thành task: ' + t.name);
+    } else {
+      const key = playerId + ':' + taskId;
+      t.progress = t.progress || {};
+      t.progress[key] = (t.progress[key] || 0) + dt;
+      if (t.progress[key] >= t.total) {
+        p.tasksDone[taskId] = true;
+        addLog(p.name + ' hoàn thành task: ' + t.name);
+      }
+    }
+    checkWin();
+    broadcastState();
+  }
+
+  function doKill(killerId, targetId) {
+    const k = state.players[killerId];
+    const v = state.players[targetId];
+    if (!k || !v || k.role !== 'impostor' || !k.alive || !v.alive || v.role === 'impostor') return;
+    if (state.phase !== 'playing') return;
+    if (Date.now() < k.killReadyAt) return;
+    if (dist(k, v) > KILL_RANGE) return;
+    v.alive = false;
+    state.corpses.push({ id:'corpse_' + Date.now(), playerId: targetId, x:v.x, y:v.y, color:v.color, name:v.name });
+    k.killReadyAt = Date.now() + KILL_COOLDOWN;
+    addLog('Một xác đã xuất hiện...');
+    checkWin();
+    broadcastState();
+  }
+
+  function doReport(reporterId, corpseId, emergency) {
+    const p = state.players[reporterId];
+    if (!p || !p.alive || state.phase !== 'playing') return;
+    if (emergency) {
+      if (p.emergencyUsed) return;
+      p.emergencyUsed = true;
+    } else {
+      const c = state.corpses.find(x => x.id === corpseId);
+      if (!c || dist(p, c) > REPORT_RANGE) return;
+    }
+    state.phase = 'meeting';
+    state.meeting = { reason: emergency ? p.name + ' bấm Emergency Meeting' : p.name + ' report xác', endAt: Date.now() + MEETING_SECONDS * 1000 };
+    state.votes = {};
+    state.corpses = [];
+    addLog(state.meeting.reason);
+    broadcastState();
+    startMeetingTimerHost();
+  }
+
+  function doVote(voterId, targetId) {
+    const p = state.players[voterId];
+    if (!p || !p.alive || state.phase !== 'meeting') return;
+    state.votes[voterId] = targetId || 'skip';
+    const alive = Object.values(state.players).filter(x => x.alive).length;
+    if (Object.keys(state.votes).length >= alive) finishMeeting();
+    else broadcastState();
+  }
+
+  function startMeetingTimerHost() {
+    clearInterval(meetingInterval);
+    meetingInterval = setInterval(() => {
+      if (!host || state.phase !== 'meeting' || !state.meeting) return clearInterval(meetingInterval);
+      if (Date.now() >= state.meeting.endAt) finishMeeting();
+      else broadcastState();
+    }, 1000);
+  }
+
+  function finishMeeting() {
+    if (!host || state.phase !== 'meeting') return;
+    clearInterval(meetingInterval);
+    const counts = {};
+    Object.values(state.votes).forEach(v => counts[v] = (counts[v] || 0) + 1);
+    let top = 'skip', topCount = 0, tie = false;
+    for (const [target, count] of Object.entries(counts)) {
+      if (count > topCount) { top = target; topCount = count; tie = false; }
+      else if (count === topCount) tie = true;
+    }
+    if (!topCount || tie || top === 'skip') {
+      addLog('Không ai bị đuổi.');
+    } else if (state.players[top]) {
+      state.players[top].alive = false;
+      addLog(state.players[top].name + ' bị đuổi. Vai trò: ' + roleVN(state.players[top].role));
+    }
+    state.phase = 'playing';
+    state.meeting = null;
+    state.votes = {};
+    Object.values(state.players).forEach(p => p.killReadyAt = Math.max(p.killReadyAt || 0, Date.now() + 3500));
+    checkWin();
+    broadcastState();
+  }
+
+  function checkWin() {
+    const alive = Object.values(state.players).filter(p => p.alive);
+    const impAlive = alive.filter(p => p.role === 'impostor').length;
+    const crewAlive = alive.filter(p => p.role === 'crewmate').length;
+    if (impAlive === 0) return endGame('crew', 'Crewmate thắng! Tất cả Impostor đã bị loại.');
+    if (impAlive >= crewAlive) return endGame('impostor', 'Impostor thắng! Số Impostor đã áp đảo crew.');
+
+    const crews = Object.values(state.players).filter(p => p.role === 'crewmate');
+    const total = crews.length * state.tasks.length;
+    const done = crews.reduce((sum, p) => sum + Object.keys(p.tasksDone || {}).length, 0);
+    if (total > 0 && done >= total) return endGame('crew', 'Crewmate thắng! Tất cả task đã hoàn thành.');
+  }
+
+  function endGame(team, text) {
+    state.phase = 'ended';
+    state.winner = { team, text };
+    addLog(text);
+  }
+
+  function showEnd() {
+    $('endTitle').textContent = state.winner.team === 'crew' ? 'CREWMATE WIN' : 'IMPOSTOR WIN';
+    $('endText').textContent = state.winner.text;
+    $('endScreen').classList.remove('hidden');
+  }
+
+  function roleVN(r) { return r === 'impostor' ? 'Impostor' : r === 'crewmate' ? 'Crewmate' : 'Chưa rõ'; }
+
+  function movePlayer(p, dx, dy, dt) {
+    if (!dx && !dy) return;
+    const len = Math.hypot(dx, dy) || 1;
+    let nx = p.x + dx / len * SPEED * dt;
+    let ny = p.y + dy / len * SPEED * dt;
+    const old = { x:p.x, y:p.y };
+    p.x = nx;
+    if (collidesPlayer(p)) p.x = old.x;
+    p.y = ny;
+    if (collidesPlayer(p)) p.y = old.y;
+  }
+
+  function collidesPlayer(p) {
+    const r = 20;
+    return walls.some(w => circleRect(p.x, p.y, r, w));
+  }
+
+  function circleRect(cx, cy, cr, r) {
+    const x = clamp(cx, r.x, r.x + r.w);
+    const y = clamp(cy, r.y, r.y + r.h);
+    return Math.hypot(cx - x, cy - y) < cr;
+  }
+
+  function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+  function dist(a, b) { return Math.hypot(a.x - b.x, a.y - b.y); }
+
+  function nearestTask() {
+    const p = me();
+    if (!p || !p.alive || p.role !== 'crewmate') return null;
+    return state.tasks.find(t => !p.tasksDone[t.id] && dist(p, t) <= TASK_RANGE) || null;
+  }
+
+  function nearestVictim() {
+    const p = me();
+    if (!p || !p.alive || p.role !== 'impostor') return null;
+    return Object.values(state.players).find(v => v.id !== myId && v.alive && v.role === 'crewmate' && dist(p, v) <= KILL_RANGE) || null;
+  }
+
+  function nearestCorpse() {
+    const p = me();
+    if (!p || !p.alive) return null;
+    return state.corpses.find(c => dist(p, c) <= REPORT_RANGE) || null;
+  }
+
+  function localInput(dt) {
+    if (!myId || state.phase !== 'playing') return;
+    const p = me();
+    if (!p || !p.alive) return;
+    let dx = 0, dy = 0;
+    if (keys.KeyA || keys.ArrowLeft) dx--;
+    if (keys.KeyD || keys.ArrowRight) dx++;
+    if (keys.KeyW || keys.ArrowUp) dy--;
+    if (keys.KeyS || keys.ArrowDown) dy++;
+    dx += mobile.x || 0;
+    dy += mobile.y || 0;
+    if (dx || dy) {
+      if (host) {
+        movePlayer(p, dx, dy, dt);
+        broadcastStateThrottled();
+      } else {
+        sendToHost({ type:'input', dx, dy, dt });
+      }
+    }
+    if (keys.Space) {
+      const t = nearestTask();
+      if (t && t.kind === 'hold') sendToHost({ type:'task', taskId:t.id, dt, mode:'hold' });
+    }
+  }
+
+  let lastBroadcast = 0;
+  function broadcastStateThrottled() {
+    if (!host) return;
+    const now = performance.now();
+    if (now - lastBroadcast > 45) {
+      lastBroadcast = now;
+      broadcastState();
+    }
+  }
+
+  function useAction() {
+    const t = nearestTask();
+    if (!t) return toast('Không có task gần bạn.');
+    sendToHost({ type:'task', taskId:t.id, dt:0.2, mode: t.kind === 'tap' ? 'tap' : 'hold' });
+  }
+  function killAction() {
+    const p = me();
+    const v = nearestVictim();
+    if (!p || p.role !== 'impostor') return toast('Bạn không phải Impostor.');
+    if (Date.now() < p.killReadyAt) return toast('Kill cooldown còn ' + Math.ceil((p.killReadyAt - Date.now())/1000) + 's');
+    if (!v) return toast('Không có crewmate đủ gần.');
+    sendToHost({ type:'kill', targetId:v.id });
+  }
+  function reportAction() {
+    const c = nearestCorpse();
+    if (!c) return toast('Không có xác gần bạn.');
+    sendToHost({ type:'report', corpseId:c.id });
+  }
+  function emergencyAction() {
+    const p = me();
+    if (!p || !p.alive || p.emergencyUsed) return toast('Bạn đã dùng Emergency hoặc đang chết.');
+    const button = { x: 800, y: 885 };
+    if (dist(p, button) > 90) return toast('Hãy đứng gần nút Emergency ở sảnh dưới.');
+    sendToHost({ type:'report', emergency:true });
+  }
+
+  function draw() {
+    const box = $('canvasBox').getBoundingClientRect();
+    const w = box.width, h = box.height;
+    ctx.clearRect(0, 0, w, h);
+    const p = me() || { x:800, y:500 };
+    const camX = WORLD.w <= w ? 0 : clamp(p.x - w/2, 0, WORLD.w - w);
+    const camY = WORLD.h <= h ? 0 : clamp(p.y - h/2, 0, WORLD.h - h);
+    ctx.save();
+    ctx.translate(-camX, -camY);
+    drawWorld();
+    ctx.restore();
+  }
+
+  function drawWorld() {
+    ctx.fillStyle = '#0d1730';
+    ctx.fillRect(0, 0, WORLD.w, WORLD.h);
+    drawGrid();
+    walls.forEach(drawRoom);
+    drawTaskObjects();
+    drawEmergencyButton();
+    state.corpses.forEach(drawCorpse);
+    Object.values(state.players).forEach(drawPlayer);
+  }
+
+  function drawGrid() {
+    ctx.strokeStyle = 'rgba(255,255,255,.035)';
+    ctx.lineWidth = 1;
+    for (let x=0; x<WORLD.w; x+=80) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,WORLD.h); ctx.stroke(); }
+    for (let y=0; y<WORLD.h; y+=80) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(WORLD.w,y); ctx.stroke(); }
+  }
+
+  function drawRoom(r) {
+    ctx.fillStyle = r.name ? '#18294d' : '#26365f';
+    ctx.strokeStyle = 'rgba(255,255,255,.15)';
+    ctx.lineWidth = 2;
+    roundRect(r.x,r.y,r.w,r.h,18,true,true);
+    if (r.name) {
+      ctx.fillStyle = 'rgba(255,255,255,.68)';
+      ctx.font = 'bold 16px Arial';
+      ctx.fillText(r.name, r.x + 16, r.y + 28);
+    }
+  }
+
+  function drawTaskObjects() {
+    state.tasks.forEach(t => {
+      const done = me()?.tasksDone?.[t.id];
+      ctx.fillStyle = done ? '#22c55e' : '#facc15';
+      ctx.beginPath(); ctx.arc(t.x, t.y, 16, 0, Math.PI*2); ctx.fill();
+      ctx.strokeStyle = 'rgba(0,0,0,.45)'; ctx.lineWidth = 4; ctx.stroke();
+      ctx.fillStyle = 'white'; ctx.font = '12px Arial'; ctx.textAlign = 'center';
+      ctx.fillText(t.name, t.x, t.y - 24);
+      ctx.textAlign = 'left';
+    });
+  }
+
+  function drawEmergencyButton() {
+    ctx.fillStyle = '#e11d48';
+    roundRect(750, 850, 100, 70, 16, true, true);
+    ctx.fillStyle = 'white';
+    ctx.font = 'bold 13px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('EMERGENCY', 800, 880);
+    ctx.fillText('BUTTON', 800, 898);
+    ctx.textAlign = 'left';
+  }
+
+  function drawCorpse(c) {
+    ctx.save();
+    ctx.translate(c.x, c.y);
+    ctx.fillStyle = c.color;
+    ctx.beginPath(); ctx.ellipse(-8, 4, 22, 13, -0.3, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#b91c1c';
+    ctx.beginPath(); ctx.arc(14, -2, 11, 0, Math.PI*2); ctx.fill();
+    ctx.strokeStyle = 'white'; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.moveTo(9, -7); ctx.lineTo(19, 3); ctx.moveTo(19, -7); ctx.lineTo(9, 3); ctx.stroke();
+    ctx.restore();
+  }
+
+  function drawPlayer(p) {
+    const ghost = !p.alive;
+    ctx.save();
+    ctx.globalAlpha = ghost ? .35 : 1;
+    ctx.translate(p.x, p.y);
+    ctx.fillStyle = p.color;
+    roundRect(-18, -26, 36, 52, 17, true, false);
+    ctx.fillStyle = shade(p.color, -30);
+    roundRect(7, 0, 15, 24, 8, true, false);
+    ctx.fillStyle = '#9be8ff';
+    roundRect(-6, -18, 26, 14, 8, true, false);
+    ctx.strokeStyle = 'rgba(0,0,0,.4)';
+    ctx.lineWidth = 3;
+    roundRect(-18, -26, 36, 52, 17, false, true);
+    ctx.fillStyle = 'white';
+    ctx.font = 'bold 13px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText(p.name, 0, -35);
+    if (p.id === myId) {
+      ctx.strokeStyle = '#facc15'; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.arc(0, 0, 32, 0, Math.PI*2); ctx.stroke();
+    }
+    ctx.restore();
+    ctx.textAlign = 'left';
+  }
+
+  function roundRect(x,y,w,h,r,fill,stroke) {
+    ctx.beginPath();
+    ctx.moveTo(x+r,y);
+    ctx.arcTo(x+w,y,x+w,y+h,r);
+    ctx.arcTo(x+w,y+h,x,y+h,r);
+    ctx.arcTo(x,y+h,x,y,r);
+    ctx.arcTo(x,y,x+w,y,r);
+    if (fill) ctx.fill();
+    if (stroke) ctx.stroke();
+  }
+
+  function shade(hex, amt) {
+    const n = parseInt(hex.slice(1), 16);
+    let r = (n >> 16) + amt, g = ((n >> 8) & 255) + amt, b = (n & 255) + amt;
+    r = clamp(r,0,255); g = clamp(g,0,255); b = clamp(b,0,255);
+    return '#' + ((1<<24) + (r<<16) + (g<<8) + b).toString(16).slice(1);
+  }
+
+  function updateHUD() {
+    const p = me();
+    if (p) {
+      $('roleName').textContent = roleVN(p.role);
+      $('roleName').style.color = p.role === 'impostor' ? '#ef4444' : p.role === 'crewmate' ? '#22c55e' : 'white';
+      $('roleHint').textContent = p.role === 'impostor'
+        ? 'Giả vờ làm task, hạ crew và tránh bị vote.'
+        : p.role === 'crewmate'
+          ? 'Hoàn thành task, report xác, tìm Impostor.'
+          : 'Chờ host bắt đầu game.';
+    }
+    $('btnStart').disabled = !host || state.phase === 'playing' || state.phase === 'meeting';
+    $('btnKill').style.display = p?.role === 'impostor' ? 'inline-block' : 'none';
+    $('btnUse').style.display = p?.role === 'crewmate' ? 'inline-block' : 'none';
+    $('btnReport').disabled = !nearestCorpse();
+    $('btnEmergency').disabled = !p || !p.alive || p.emergencyUsed || state.phase !== 'playing';
+
+    const crews = Object.values(state.players).filter(x => x.role === 'crewmate');
+    const total = Math.max(1, crews.length * state.tasks.length);
+    const done = crews.reduce((sum, x) => sum + Object.keys(x.tasksDone || {}).length, 0);
+    $('taskList').innerHTML = state.tasks.map(t => {
+      const d = p?.tasksDone?.[t.id];
+      return `<li>${d ? '✅' : '⬜'} ${t.name}</li>`;
+    }).join('') + `<li><b>Tiến độ team:</b> ${done}/${total}</li>`;
+
+    $('playersList').innerHTML = Object.values(state.players).map(x => `
+      <div class="playerItem ${x.alive ? '' : 'dead'}">
+        <b style="color:${x.color}">${escapeHtml(x.name)}</b>
+        <span class="small">${x.alive ? 'sống' : 'chết'} ${x.connected === false ? ' · offline' : ''}</span>
+      </div>`).join('');
+
+    $('logList').innerHTML = state.log.map(l => `<div class="logItem small">${escapeHtml(l.msg)}</div>`).join('');
+  }
+
+  function updateMeetingUI() {
+    if (state.phase === 'meeting') {
+      $('meeting').classList.remove('hidden');
+      $('meetingReason').textContent = state.meeting?.reason || 'Cuộc họp';
+      const remain = Math.max(0, Math.ceil(((state.meeting?.endAt || Date.now()) - Date.now())/1000));
+      $('meetingTimer').textContent = remain;
+      const alive = Object.values(state.players).filter(p => p.alive);
+      $('voteList').innerHTML = alive.map(p => `
+        <div class="voteItem">
+          <span><b style="color:${p.color}">${escapeHtml(p.name)}</b> <span class="small">${votesFor(p.id)} vote</span></span>
+          <button data-vote="${p.id}" ${!me()?.alive || state.votes[myId] ? 'disabled' : ''}>Vote</button>
+        </div>
+      `).join('');
+      document.querySelectorAll('[data-vote]').forEach(b => b.onclick = () => sendToHost({ type:'vote', targetId:b.dataset.vote }));
+    } else {
+      $('meeting').classList.add('hidden');
+    }
+  }
+
+  function votesFor(id) { return Object.values(state.votes).filter(v => v === id).length; }
+  function escapeHtml(str) { return String(str).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+  function tick(now) {
+    const dt = Math.min(.05, (now - lastFrame) / 1000);
+    lastFrame = now;
+    localInput(dt);
+    draw();
+    if (host && now - lastPing > 800) {
+      lastPing = now;
+      if (state.phase === 'playing') checkWin();
+      broadcastState();
+    }
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+
+  addEventListener('keydown', e => {
+    keys[e.code] = true;
+    if (['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code)) e.preventDefault();
+  });
+  addEventListener('keyup', e => keys[e.code] = false);
+
+  function lockMobilePage() {
+    const stop = e => {
+      if (e.target.closest('.panel, #hud, input, select')) return;
+      e.preventDefault();
+    };
+    document.addEventListener('touchmove', stop, { passive: false });
+    document.addEventListener('gesturestart', e => e.preventDefault(), { passive: false });
+  }
+  lockMobilePage();
+
+  const pad = $('mobilePad');
+  const stick = $('mobileStick');
+  function setStick(clientX, clientY) {
+    const r = pad.getBoundingClientRect();
+    const cx = r.left + r.width / 2;
+    const cy = r.top + r.height / 2;
+    const max = r.width * 0.32;
+    let x = clientX - cx;
+    let y = clientY - cy;
+    const len = Math.hypot(x, y);
+    if (len > max) { x = x / len * max; y = y / len * max; }
+    mobile.x = Math.abs(x) < 6 ? 0 : x / max;
+    mobile.y = Math.abs(y) < 6 ? 0 : y / max;
+    stick.style.transform = `translate(${x}px, ${y}px)`;
+  }
+  function resetStick() {
+    mobile.x = 0;
+    mobile.y = 0;
+    mobile.active = false;
+    mobile.pointerId = null;
+    stick.style.transform = 'translate(0, 0)';
+  }
+  pad.addEventListener('pointerdown', e => {
+    mobile.active = true;
+    mobile.pointerId = e.pointerId;
+    pad.setPointerCapture(e.pointerId);
+    setStick(e.clientX, e.clientY);
+  });
+  pad.addEventListener('pointermove', e => {
+    if (!mobile.active || e.pointerId !== mobile.pointerId) return;
+    setStick(e.clientX, e.clientY);
+  });
+  pad.addEventListener('pointerup', resetStick);
+  pad.addEventListener('pointercancel', resetStick);
+
+  $('btnCreatePeer').onclick = connectPeer;
+  $('btnHost').onclick = becomeHost;
+  $('btnJoin').onclick = joinHost;
+  $('btnStart').onclick = startGame;
+  $('btnUse').onclick = useAction;
+  $('btnKill').onclick = killAction;
+  $('btnReport').onclick = reportAction;
+  $('btnEmergency').onclick = emergencyAction;
+  $('btnSkip').onclick = () => sendToHost({ type:'vote', targetId:'skip' });
+  $('copyId').onclick = async () => {
+    try { await navigator.clipboard.writeText(myId || ''); toast('Đã copy Peer ID.'); } catch {}
+  };
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) resetStick();
+  });
+
+  setInterval(() => {
+    updateHUD();
+    updateMeetingUI();
+  }, 350);
+
+})();
+</script>
+</body>
+</html>
     .stat-box span { display: block; color: var(--muted); font-size: 14px; }
     .stat-box strong { display: block; color: #d8b4fe; font-size: 30px; margin: 8px 0; word-break: break-word; }
     small { display: block; color: var(--muted); }
